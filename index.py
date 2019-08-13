@@ -1,80 +1,63 @@
-# chart render import
-import charts
-# searching in the api
-import json
-import requests
+from src import search
+import tkinter as tk
+
+bg_app = "#3700B3"
+fg_app = 'white'
 
 
-# empty array for store the subreddits name
-words = []
-subreddits = []
-data = []
-count = 0
+def close_window():
+    root.destroy()
 
 
-def dataCharts(word, subr, data):
-    final_data = [subr, word, data]
-    #print('final data: ', final_data)
-    # calling render method
-    charts.main(final_data)
+def searchButtonEvent():
+    # type str
+    words = e1.get()
+    subreddits = e2.get()
+
+    print("Words provided: %s\nSubreddits provided: %s" % (words, subreddits))
+
+    words_splited = words.split(' ')
+    subreddits_splited = subreddits.split(' ')
+
+    # calling search module
+    search.main(words_splited, subreddits_splited)
+
+    print(words_splited)
+    print(subreddits_splited)
+
+    # clean elements value
+    e1.delete(0, tk.END)
+    e2.delete(0, tk.END)
 
 
-def search(words, subreddits, data, count):
-    # to every subreddit
-    for word in range(len(words)):
-        # to every word to search
-        for sub in range(len(subreddits)):
-            # initialize the url
-            url = ('https://www.reddit.com/r/' +
-                   subreddits[sub]+'/comments.json')
-            request = requests.get(url, headers={'User-agent': 'your bot 0.1'})
-            # gettin json object
-            obj = request.json()
+if __name__ == '__main__':
+    root = tk.Tk()
+    root.title('Reddit Searcher')
+    root.configure(bg=bg_app)
+    root.geometry("400x350")
+    root.resizable(False, False)
 
-            for y in range(24):
+    tk.Label(root, text="Reddit Searcher: ",
+             fg=fg_app, font=("Times", 20), bg='black').pack(fill=tk.BOTH)
+    #########################################################################
 
-                if 'body' in (obj['data']['children'][y]['data']):
+    tk.Label(root, text="Words to search: ",
+             font=("Times", 13), bg=bg_app, fg=fg_app).place(x=20, y=90)
+    tk.Label(root, text="Subreddits to search: ",
+             font=("Times", 13), bg=bg_app, fg=fg_app).place(x=20, y=150)
 
-                    body = obj['data']['children'][y]['data']['body']
-                    text = body.split(' ')
+    e1 = tk.Entry(root, font=("Times", 13))
+    e1.place(x=170, y=90)
 
-                    for i in text:
-                        if i == words[word]:
+    e2 = tk.Entry(root, font=("Times", 13))
+    e2.place(x=170, y=150)
 
-                            count += 1
+    tk.Button(root, text="Bye", fg='red', width='10',
+              command=close_window).place(x=20, y=300)
+    tk.Button(root, text="Search", fg='blue', width='10',
+              command=searchButtonEvent).place(x=300, y=300)
 
-                else:
-                    print('section not found. JSON structure is different.')
-                    break
-        print(words[word], 'has been found ', count, ' times.')
-        # add to data
-        data.append(count)
-    # print(data)  # array filled with data
-    dataCharts(words, subreddits, data)
+    tk.Label(root, text="Copyright (C) 2019 Alejandro Gimeno Ataz",
+             font=("Times", 10), bg=bg_app, fg=fg_app).place(x=80, y=330)
 
-
-def main():
-    # ask for the word to search
-    num_words = int(input('Enter the words number that you want to search: '))
-    # ask the number os subreddits that we want to search
-    num_subreddits = int(input('How many subreddits i have to search in? '))
-
-    if num_words == num_subreddits:
-        for i in range(num_words):
-            nameW = input('Enter word: ')
-            # append names to the array
-            words.append(nameW)
-
-        for j in range(num_subreddits):
-            nameS = input('Enter the subreddit: ')
-            # append names to the array
-            subreddits.append(nameS)
-
-        search(words, subreddits, data, count)
-    else:
-        print('You must search the same number of words in the same number of subreddits!')
-        exit()
-
-
-if __name__ == "__main__":
-    main()
+    root.mainloop()
